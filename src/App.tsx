@@ -5,9 +5,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-// Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 // Utility for neat class merging
 function cn(...inputs: (string | undefined | null | false)[]) {
   return twMerge(clsx(inputs));
@@ -73,7 +70,15 @@ THÔNG TIN HỌC SINH TỪ GIÁO VIÊN:
 Chỉ trả về 1 đoạn văn 5 câu duy nhất. KHÔNG thêm bất kỳ bình luận nào khác.
     `;
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      setError('Thiếu API Key của Gemini. Vui lòng thêm biến môi trường GEMINI_API_KEY trong cấu hình Vercel.');
+      setIsGenerating(false);
+      return;
+    }
+
     try {
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
